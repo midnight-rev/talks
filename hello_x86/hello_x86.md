@@ -1,14 +1,16 @@
 ---
 author: "Midnight Reverser"
-date: 2024-12-16
+date: 2024-12-22
 paging: "%d / %d"
 ---
 
 ```
-~~~figlet
-Hello, Assembly!
-~~~
+
+█░█ █▀▀ █░░ █░░ █▀█ ░   ▄▀█ █▀ █▀ █▀▀ █▀▄▀█ █▄▄ █░░ █▄█ █
+█▀█ ██▄ █▄▄ █▄▄ █▄█ █   █▀█ ▄█ ▄█ ██▄ █░▀░█ █▄█ █▄▄ ░█░ ▄
 ```
+
+<br>
 
 # Hello World em Assembly x86
 
@@ -24,27 +26,42 @@ Para a parte prática, caso deseje acompanhar escrevendo o código, execute uma 
 docker run -it hello_world_x86 bash
 ```
 
-> **NOTA**: caso algum slide esteja malformatado, tente alterar o tamanho da tela ou reexecutar o container.
+> **NOTA**: caso algum slide esteja malformatado, tente alterar o tamanho do terminal ou reexecutar o container.
 
 
 ---
 
 ```
-~~~figlet
-???
-~~~
+██████╗░██████╗░░█████╗░░██████╗░██████╗░░█████╗░███╗░░░███╗░░░███████╗██╗░░██╗███████╗
+██╔══██╗██╔══██╗██╔══██╗██╔════╝░██╔══██╗██╔══██╗████╗░████║░░░██╔════╝╚██╗██╔╝██╔════╝
+██████╔╝██████╔╝██║░░██║██║░░██╗░██████╔╝███████║██╔████╔██║░░░█████╗░░░╚███╔╝░█████╗░░
+██╔═══╝░██╔══██╗██║░░██║██║░░╚██╗██╔══██╗██╔══██║██║╚██╔╝██║░░░██╔══╝░░░██╔██╗░██╔══╝░░
+██║░░░░░██║░░██║╚█████╔╝╚██████╔╝██║░░██║██║░░██║██║░╚═╝░██║██╗███████╗██╔╝╚██╗███████╗
+╚═╝░░░░░╚═╝░░╚═╝░╚════╝░░╚═════╝░╚═╝░░╚═╝╚═╝░░╚═╝╚═╝░░░░░╚═╝╚═╝╚══════╝╚═╝░░╚═╝╚══════╝
 ```
+<br>
 
 # O que é um executável?
 
-Para comerçarmos, é importante saber o que é um executável. Executável, durante essa talk, será tratado como um arquivo "binário", que pode ser carregado por um software *loader* e execute *instruções*.
+Para comerçarmos, é importante saber o que é um executável. Executável, durante essa talk, será tratado como um arquivo "binário", que pode ser carregado por um software *loader* e execute *instruções* (ou, para os mais leigos, um programa que pode ser executado com um duplo clique, ou ./ :)).
 <br>
 
 Calma! Iremos passar por todas essas terminologias logo logo, mas por agora é necessário se atentar ao formato de executável em Linux: o **Executable and Linking Format**, ou **ELF**.
 <br>
 
+Os programas compilados com o gcc, processos de configure/make/make install, e até mesmo os binários empacotados com .deb/.rpm são construídos nesse formato. Podemos utilizar o comando `file` para verificar o formato dos arquivos, inclusive ELFs! Aperte CTRL-e para executar o exemplo abaixo.
+<br>
+
+```bash
+# Exemplo
+file /bin/busybox
+```
+
 O assunto sobre formato ELF exigiria mais que uma talk, provavelmente um minicurso! Mas vejamos alguns pontos importantes sobre ele...
 
+--- 
+
+*Resultado do exemplo:*
 
 ---
 
@@ -57,6 +74,17 @@ Esse formato de arquivos é utilizado para identificar binários executáveis, r
 
 > Os principais cabeçalhos são o *ELF Header*, *Program Header* e *Section Header*.
 
+> Aperte CTRL-e para executar um exemplo!
+
+```bash
+readelf -h /bin/busybox
+```
+
+<br>
+
+--- 
+*Resultados do exemplo:*
+
 ---
 
 # Formato ELF
@@ -67,6 +95,15 @@ Esse formato de arquivos é utilizado para identificar binários executáveis, r
 Elas são nomeadas, geralmente, com um nome curto e começando por ponto (.text, .data, .bss, etc) e contém informações que, após o linking, são usadas para definir os segmentos.
 
 > Devido a sua importância para o linking, seções são obrigatórias em relocáveis.
+
+Para verificar os cabeçalhos de seções do `/bin/busybox`, aperte CTRL-e.
+
+```bash
+readelf -S /bin/busybox
+```
+
+--- 
+*Resultados do exemplo:*
 
 ---
 
@@ -81,34 +118,47 @@ Além disso, cada segmento tem suas páginas de memória configuradas de acordo 
 
 > **NOTA**: para maiores informações:
 
-```bash
+```
 man 5 elf
 ```
+
+Para verificar os cabeçalhos de programa do `/bin/busybox`, aperte CTRL-e.
+
+```bash
+readelf -l /bin/busybox
+```
+
+--- 
+*Resultados do exemplo:*
+
 
 ---
 
 # Formato ELF
 
+A arte abaixo representa uma visão de alto nível sobre o formato ELF.
+
 ```
-+ ================ +  
-|                  |
-|    ELF Header    |
-|                  |
-+ ================ +
-|                  |
-|  Program Header  |
-|                  |
-+ ================ +
-|  Sections        |
-|      .text       |
-|      .data       |
-|      .bss        |
-|      .symtab     |
-+ ================ +
-|                  |
-|  Section Header  |
-|                  |
-+ ================ +
+ ╔═══════════════════╗  
+ ║    ELF Header     ║  
+ ╠───────────────────╣██
+ ║                   ║██
+ ║  Program Header   ║██
+ ║                   ║██
+ ╠───────────────────╣██
+ ║                   ║██
+ ║    <sections>     ║██
+ ║      .data        ║██
+ ║      .text        ║██
+ ║       .bss        ║██
+ ║                   ║██
+ ╠───────────────────║██
+ ║                   ║██
+ ║  Section Header   ║██
+ ║                   ║██
+ ╚═══════════════════╝██
+   █████████████████████
+   █████████████████████
 ```
 
 ---
@@ -158,70 +208,42 @@ man 5 elf
 - Geralmente são utilizados como memória intermediária para ler dados/escrever na RAM e para operações lógico e aritméticas.
 <br>
 
+---
+
 ## Registradores de propósito geral
 
-Abaixo estão alguns registradores da arquitetura x86.
+Abaixo estão alguns registradores de uso geral da arquitetura x86.
 
 ```
-+ ----------------- +                    
-|        EAX        | -> 32 bits         
-+ ----------------- +                    
-          + ------- +
-          |   AX    | -> 16 bits        
-          + ------- +                   
-          + ------- +                    
-          | AH | AL | -> 8 bits cada       
-          + ------- +   
-
-```
-
----
-
-```
-+ ----------------- +
-|        EBX        | -> 32 bits
-+ ----------------- +
-          + ------- +
-          |   BX    | -> 16 bits
-          + ------- +
-          + ------- +
-          | BH | BL | -> 8 bits cada
-          + ------- +
-
-
-+ ----------------- +
-|        ECX        | -> 32 bits
-+ ----------------- +
-          + ------- +
-          |   CX    | -> 16 bits
-          + ------- +
-          + ------- +
-          | CH | CL | -> 8 bits cada
-          + ------- +
-
-```
-
----
-
-```
-
-+ ----------------- +
-|        EDX        | -> 32 bits
-+ ----------------- +
-          + ------- +
-          |   DX    | -> 16 bits
-          + ------- +
-          + ------- +
-          | DH | DL | -> 8 bits cada
-          + ------- +
-          
-
-+ ----------------- +                   + ----------------- +           
-|        ESI        | -> 32 bits        |        EDI        | -> 32 bits
-+ ----------------- +                   + ----------------- +           
-          + ------- +                             + ------- +           
-          |   SI    | -> 16 bits                  |   DI    | -> 16 bits
-          + ------- +                             + ------- +           
+                ┊                 ┊                 ┊                 
+┌───────────┐   ┊ ┌───────────┐   ┊ ┌───────────┐   ┊ ┌───────────┐   
+│    EAX    │   ┊ │    EBX    │   ┊ │    ECX    │   ┊ │    EDX    │   
+└───────────┘   ┊ └───────────┘   ┊ └───────────┘   ┊ └───────────┘   
+◀───────────▶   ┊ ◀───────────▶   ┊ ◀───────────▶   ┊ ◀───────────▶   
+   32 bits      ┊    32 bits      ┊    32 bits      ┊    32 bits      
+      ┌─────┐   ┊       ┌─────┐   ┊       ┌─────┐   ┊       ┌─────┐   
+      │ AX  │   ┊       │ BX  │   ┊       │ CX  │   ┊       │ DX  │   
+      └─────┘   ┊       └─────┘   ┊       └─────┘   ┊       └─────┘   
+      ◀─────▶   ┊       ◀─────▶   ┊       ◀─────▶   ┊       ◀─────▶   
+      16 bits   ┊       16 bits   ┊       16 bits   ┊       16 bits   
+      ┌──┬──┐   ┊       ┌──┬──┐   ┊       ┌──┬──┐   ┊       ┌──┬──┐   
+      │AH│AL│   ┊       │BH│BL│   ┊       │CH│CL│   ┊       │DH│DL│   
+      └──┴──┘   ┊       └──┴──┘   ┊       └──┴──┘   ┊       └──┴──┘   
+      ◀──◈──▶   ┊       ◀──◈──▶   ┊       ◀──◈──▶   ┊       ◀──◈──▶   
+    8 bits cada ┊     8 bits cada ┊     8 bits cada ┊     8 bits cada 
+                ┊                 ┊                 ┊                 
+┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+                  ┌───────────┐   ┊   ┌───────────┐                   
+                  │    ESI    │   ┊   │    EDI    │                   
+                  └───────────┘   ┊   └───────────┘                   
+                  ◀───────────▶   ┊   ◀───────────▶                   
+                     32 bits      ┊      32 bits                      
+                        ┌─────┐   ┊         ┌─────┐                   
+                        │ SI  │   ┊         │ DI  │                   
+                        └─────┘   ┊         └─────┘                   
+                        ◀─────▶   ┊         ◀─────▶                   
+                        16 bits   ┊         16 bits                   
+                                  ┊                                   
 
 ```
 
@@ -248,13 +270,49 @@ XOR eax, eax
 # Sistema operacional e syscalls
 
 - O sistema operacional é uma camada de abstração acima da ISA e que gerencia o hardware - como endereçamento e alocações de memória.
+
 <br>
+
 - Para evitar que qualquer programa quebre ou mexa indevidamente no sistema, o acesso a funcionalidades é restrito: apenas o kernel do sistema (ring 0) tem acesso direto ao hardware. Abrir arquivos, escrever na tela e outras interações só acontecem via kernel.
+
 <br>
+
 - Para que programas de usuário (ring 3) consigam acessar essas funções, no kernel existe uma tabela que mapeia um inteiro não negativo para uma funcionalidade, chamada de syscall. Um programa de usuário, então, configura *registradores* e chama uma instrução TRAP ou interrupção para que o kernel *execute aquela funcionalidade por ele*.
+
 <br>
-- Para uma lista mais completa de syscalls x86/Linux, visite [](https://x86.syscall.sh/).
+
+> Para uma lista mais completa de syscalls x86/Linux, visite [](https://x86.syscall.sh/).
+
 <br>
+
+---
+
+# Rings
+
+Abaixo está uma arte representando os rings de permissão.
+
+```
+            .───────────.            
+        _.─'    ring 3   `──.        
+      ,'     .─────────.     `.      
+    ,'   _.─'   ring 2  `──.   `.    
+  ,'   ,'     .───────.     `.   `.  
+ ;    ╱    ,─'  ring 1 '─.    ╲    : 
+ ;   ╱   ,'    .─────.    `.   ╲   : 
+;   ;   ;    ,'       `.    :   :   :
+│   │   │   ;           :   │   │   │
+│   │   │   :   ring 0  ;   │   │   │
+:   :   :    ╲         ╱    ;   ;   ;
+ :   ╲   ╲    `.     ,'    ╱   ╱   ; 
+ :    ╲   `.    `───'    ,'   ╱    ; 
+  ╲    ╲    '─.       ,─'    ╱    ╱  
+   `.   `.     `─────'     ,'   ,'   
+     `.   `──.         _.─'   ,'     
+       `.     `───────'     ,'       
+         `──.           _.─'         
+             `─────────'
+```
+
 
 ---
 
@@ -264,7 +322,7 @@ Um arquivo .asm ou .s, contendo mnemonicos assembly, pode ser montado utilizando
 
 A montagem é o processo de transformar os mnemonicos em código de máquina. Muitas vezes, a montagem também envolve a interpretação de certas estruturas específicas do software Assembler e criação de um formato de arquivos específico - *no nosso caso, ELF*.
 
-> Montagem não significa linking! Ela apenas irá criar um relocável (ou arquivo-objeto). Falaremos mais sobre isso nessa talk.
+> Montagem não significa linking! Ela apenas irá criar um relocável (ou arquivo-objeto).
 
 ---
 
@@ -273,6 +331,16 @@ A montagem é o processo de transformar os mnemonicos em código de máquina. Mu
 O linking é o processo de unir os relocáveis em um executável final, resolvendo endereços de funções e criando os segmentos e Program Header.
 
 Para essa tarefa, utilizaremos o software `ld`.
+
+Por fim, temos a seguinte arte representando os passos que aprendemos até agora:
+
+```
+┌─────────────┐            ┌─────────────┐        ┌─────────────┐
+│ program.asm │────nasm───▶│  program.o  │───ld──▶│   program   │
+└─────────────┘            └─────────────┘        └─────────────┘
+    Assembly                 Object file                ELF      
+     Source                 (relocatable)            executable
+```
 
 ---
 
