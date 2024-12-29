@@ -127,12 +127,12 @@ readelf -h /bin/busybox
 
 # Formato ELF
 
-- Seções (Sections): delimitam áreas com código ou dados e são usadas durante o processo de *linking*, não sendo obrigatórias em runtime - *embora haja exceções!*.
+- Seções (Sections): delimitam áreas com código ou dados e são usadas principalmente durante o processo de *linking*. Por isso, o cabeçalho de seções é obrigatório para relocáveis.
 <br>
 
-Elas são nomeadas, geralmente, com um nome curto e começando por ponto (.text, .data, .bss, etc) e contém informações que, após o linking, são usadas para definir os segmentos.
+Elas são nomeadas, geralmente, com um nome curto e começando por ponto (.text, .data, .bss, etc) e contém informações que, após o linking e durante o runtime, são usadas para definir os segmentos.
 
-> Devido a sua importância para o linking, seções são obrigatórias em relocáveis.
+> Devido a sua importância para o linking, o cabeçalho de seções é obrigatório em relocáveis.
 
 Para verificar os cabeçalhos de seções do `/bin/busybox`, aperte CTRL-e.
 
@@ -147,12 +147,12 @@ readelf -S /bin/busybox
 
 # Formato ELF
 
-- Segmentos: são definidos pelo *Program Header* por meio das informações obtidas das seções durante o linking. Eles são carregados em memória durante a execução do programa, em um endereço especificado pelo *Program Header*. 
+- Segmentos: são definidos pelo *Program Header* por meio das informações obtidas das seções durante o linking. Eles são carregados em memória durante a execução do programa, em um endereço especificado pelo *Program Header*, e representam uma ou mais seções com características semelhantes.
 <br>
 
-Além disso, cada segmento tem suas páginas de memória configuradas de acordo com as permissões (RWX) definidas durante o linking.
+Além disso, cada segmento tem suas páginas de memória configuradas de acordo com as permissões (RWX) que devem ser aplicadas em runtime.
 
-> Devido a sua importância para a execução, eles são obrigatórios em executáveis e bibliotecas.
+> Devido a sua importância para a execução, o cabeçalho de programa é obrigatório em executáveis e bibliotecas.
 
 > **NOTA**: para maiores informações:
 
